@@ -8,7 +8,7 @@ class ftpfileup {
   private $host = 'example.com';
   private $usr = 'user@example.com';
   private $pwd = 'password';
-      
+
 	private $ffileArray = array();
 	private $fperfix = '';
 	private $fuserid = 0;
@@ -17,7 +17,7 @@ class ftpfileup {
 	private $frandnam = 0;
 	private $ftype = '';
 	private $fpatch = '';
-	private $flimitsize = 100000000;
+	private $flimitsize = 1073741824;
 	private $flimitnumber = 1;
 	private $fchmode = '0644';
 	private $fisadmin= false;
@@ -169,17 +169,20 @@ class ftpfileup {
 				default:
 					throw new RuntimeException('Unknown errors.');
 			}
-
+			
+			$local_file = $this->ffileArray['tmp_name'];
+			
 			// You should also check filesize here. 
-			//if ($this->ffileArray['size'] > $this->flimitsize) {
-			//	throw new RuntimeException('Exceeded filesize limit.');
-			//}
+			$this->fsize = @filesize($local_file);
+			if ($this->fsize > $this->flimitsize) {
+				throw new RuntimeException('Exceeded filesize limit.');
+			}
 //echo serialize($this->validmimtype);
 			// DO NOT TRUST $_FILES['upfile']['mime'] VALUE !!
 			// Check MIME Type by yourself.
 			$finfo = new finfo(FILEINFO_MIME_TYPE);
 			if (false === $this->ftype = array_search(
-				$finfo->file($this->ffileArray['tmp_name']),
+				$finfo->file($local_file),
 				$this->validmimtype,
 				true
 			)) {
@@ -192,16 +195,15 @@ class ftpfileup {
 			// DO NOT USE $_FILES['upfile']['name'] WITHOUT ANY VALIDATION !!
 			// On this example, obtain safe unique name from its binary data.
 			/* if (!move_uploaded_file(
-				$this->ffileArray['tmp_name'],
+				$local_file,
 				$this->ffullname
 				
 			)) {
 				throw new RuntimeException('Failed to move uploaded file.');
 			} */
-			 
+			
 			// file to move:
-			$local_file = $this->ffileArray['tmp_name'];
-			$this->fsize = $this->ffileArray['size'];
+
 			$ftp_path = $this->ffullname;
 			 
 			// connect to FTP server (port 21)
@@ -230,7 +232,8 @@ class ftpfileup {
 			ftp_close($conn_id);
 			
 			$this->getretmime();
-			return array($this->fsetname, $this->fmime, $this->fsize);
+			$strsize =sizetomega($this->fsize);
+			return array($this->fsetname, $this->fmime, $strsize);
 			//echo 'File is uploaded successfully.';
 
 		} catch (RuntimeException $e) {
@@ -311,7 +314,7 @@ class ftpfileup {
 	}
 	public function flimitsize($slArg) {
 	
-		$this->flimitsize = $slArg;
+		$this->flimitsize = sizetobyte($slArg);
 		
 	}
 	public function fchmode($chArg) {
@@ -322,13 +325,57 @@ class ftpfileup {
 	private function getretmime() {
 		foreach ($this->validmimtype as $type => $mime) {
 			if (stripos($type, $this->ftype) !== false) {
-			  $this->fmime = $mime;
-			  return true;
+				$this->fmime = $mime;
+				return true;
 			}
 		}
 		return false;
-	
+		
 	}
+	private function sizetomega($sbyte) {
+		 if ($sbyte >= 1073741824)
+        {
+            $sbyte = number_format($sbyte / 1073741824, 2) . ' GB';
+        }
+        elseif ($sbyte >= 1048576)
+        {
+            $sbyte = number_format($sbyte / 1048576, 2) . ' MB';
+        }
+        elseif ($sbyte >= 1024)
+        {
+            $sbyte = number_format($sbyte / 1024, 2) . ' KB';
+        }
+        elseif ($sbyte > 1)
+        {
+            $sbyte = $sbyte . ' Bytes';
+        }
+        elseif ($sbyte == 1)
+        {
+            $sbyte = $sbyte . ' byte';
+        }
+        else
+        {
+            $sbyte = '0 size';
+        }
+
+        return $sbyte;
+		
+	}
+	private function sizetobyte($smbyte) {
+		$bnumber=substr($smbyte,0,-2);
+		switch(strtoupper(substr($smbyte,-2))){
+			case "KB":
+            return $bnumber*1024;
+			case "MB":
+            return $bnumber*pow(1024,2);
+			case "GB":
+            return $bnumber*pow(1024,3);
+			default:
+            return $smbyte;
+		}
+		
+	}
+	
 	
 	
 }
