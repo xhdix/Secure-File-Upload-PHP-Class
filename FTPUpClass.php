@@ -272,13 +272,13 @@ class ftpfileup {
 	}
 
 
-	public function ftypes($tArg, $deflt=true) {
+	public function ftypes($tArg='', $deflt=true) {
 		
 		//echo serialize ($tArg);
 		if ($deflt == true) 
 			$tArg= array('ppsx','pptx','xlsx','xls','pps','ppt','zip','rtf','csv','txt','jpg','png','doc','docx','pdf');
 			
-		if (is_string($tArg)) {
+		if ((is_string($tArg)) && ($deflt == false)) {
 			$mimT = $this->getMimetype($tArg);
 			if ($mimT !== false) {
 				$this->validmimtype[$tArg]= $mimT;
