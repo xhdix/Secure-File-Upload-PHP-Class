@@ -1,5 +1,5 @@
 # Secure-File-Upload-PHP-Class
-Secure File Upload PHP Class
+Secure File Upload PHP Class + FTP File Upload
 ## How to use
 
 ```PHP
