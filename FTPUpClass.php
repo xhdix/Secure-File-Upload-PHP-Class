@@ -114,7 +114,7 @@ class ftpfileup {
 			'odt'                          => 'application/vnd.oasis.opendocument.text',
 			'odp'                          => 'application/vnd.oasis.opendocument.presentation',
 			'ods'                          => 'application/vnd.oasis.opendocument.spreadsheet',
-			'o dg'                          => 'application/vnd.oasis.opendocument.graphics',
+			'odg'                          => 'application/vnd.oasis.opendocument.graphics',
 			'odc'                          => 'application/vnd.oasis.opendocument.chart',
 			'odb'                          => 'application/vnd.oasis.opendocument.database',
 			'odf'                          => 'application/vnd.oasis.opendocument.formula',
